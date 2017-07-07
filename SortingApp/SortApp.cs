@@ -9,47 +9,68 @@ namespace SortingApp
 {
   class SortApp
   {
-    public List<string> Dirs { get; set; }
     public List<string> Files { get; set; }
+    public List<string> IgnoreFiles { get; set; }
     public string Path { get; set; }
 
-    public SortApp()
-    {
-      Init();
-    }
+    public SortApp() { }
 
     public SortApp(string path)
     {
+      SetPath(path);
+    }
+
+    public bool SetPath(string path)
+    {
+      if( !Directory.Exists(path) ) {
+        throw new Exception("Path not found");
+      }
+
       this.Path = path;
-      Init();
+      return true;
     }
 
-    public void Init() {
-      Files = GetFiles();
-      Dirs = GetDirs();
+    public void AddIgnoreFile(string fileName)
+    {
+      if( IgnoreFiles == null )
+        IgnoreFiles = new List<string>();
+
+      IgnoreFiles.Add(fileName);
     }
 
-    public string GetCurPath()
+    public string GetPath()
     {
       if( string.IsNullOrWhiteSpace(Path) )
         Path = Directory.GetCurrentDirectory();
 
       return Path;
     }
-
-    public List<string> GetDirs() {
-      return Directory.GetDirectories(GetCurPath()).ToList();
-    }
     public List<string> GetFiles() {
-      return Directory.GetFiles(GetCurPath()).ToList();
+      return Directory.GetFiles(GetPath()).ToList();
     }
 
     public void RunSorter()
     {
+      Files = GetFiles();
+      if( Files.Count == 0 ) {
+        Console.WriteLine("Files not found");
+        return;
+      }
+
       foreach( string file in Files ) {
         string fileName = System.IO.Path.GetFileName(file);
         string fileExt = System.IO.Path.GetExtension(fileName);
-        if( string.IsNullOrWhiteSpace(fileExt) )
+
+        bool notFileAndExt = string.IsNullOrWhiteSpace(fileName) || string.IsNullOrWhiteSpace(fileExt);
+        Console.WriteLine("notFileAndExt: {0}", notFileAndExt);
+        if( notFileAndExt )
+          continue;
+        bool isIgnoreFile = IgnoreFiles != null && IgnoreFiles.Contains(fileName);
+        Console.WriteLine("isIgnoreFile: {0}", isIgnoreFile);
+        if( notFileAndExt )
+          continue;
+        
+        if( notFileAndExt || isIgnoreFile )
           continue;
 
         Console.WriteLine("{0} - {1}", fileName, fileExt);
