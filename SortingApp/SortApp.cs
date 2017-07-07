@@ -49,6 +49,8 @@ namespace SortingApp
       foreach( string file in Files ) {
         string fileName = System.IO.Path.GetFileName(file);
         string fileExt = System.IO.Path.GetExtension(fileName);
+        if( string.IsNullOrWhiteSpace(fileExt) )
+          continue;
 
         Console.WriteLine("{0} - {1}", fileName, fileExt);
         string pathToMove = GetDirPathToMove(fileExt);
